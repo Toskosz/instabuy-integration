@@ -1,6 +1,9 @@
+from src.api import
 
+class Integration:
 
-class Integration():
+    def __init__(self, endpoint: str) -> None:
+        self.endpoint = endpoint
 
     def load(self):
         pass
@@ -10,28 +13,17 @@ class Integration():
 
     def update(self, file_path="", batch_size=None) -> None:
 
-        counter = 0
-        for row in self.load(file_path):
-            counter += 1
-
-            if batch_size <= counter:
-                counter = 0
-                payload = self.payload("put")
-                response = API.put(endpoint=self.endpoint, payload=self.payload)
-                self.payload.clear()
-
-        if len(self.payload) > 0:
-            response = API.put(endpoint=self.endpoint, payload=self.payload)
-            self.payload.clear()
+        while (self.load(file_path)):
+            payload = self.payload("put")
+            response = API.put(endpoint=self.endpoint, payload=payload)
         
         return
 
-    def create():
-        pass
+   def _file_init(self, file_path: str) -> None:
+        self.file = open(file_path, 'r')
+        self.reader = csv.reader(self.file, delimiter=';')
 
-    def delete():
-        pass
-
-    def read():
-        pass
+    def _file_terminate(self) -> None:
+        self.file.close()
+        self.reader = None
 
