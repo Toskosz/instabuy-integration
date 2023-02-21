@@ -1,4 +1,6 @@
-
+oque falta
+	api
+	a parada do batch
 
 
 testes

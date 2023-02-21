@@ -23,61 +23,72 @@ class ProductIntegration(Integration):
         self.file = None
         self.reader = None
 
-    def load(self, file_path: str) -> bool:
+    def load(self, file_path: str, batch_size: int) -> bool:
         if not self.file:
             self._file_init(file_path)
+        
+        batch_count = 0
+        while batch_count < batch_size:
+        
+            raw_data = next(self.reader, None)
+            if not raw_data:
+                break
+ 
+            product = Product()
+            product.internal_code = raw_data[0].strip()
+            if len(product.internal_code) == 0:
+                product.name = "unavailable"
 
-        raw_data = next(self.reader, None)
-        if not raw_data:
+            product.barcode = [raw_data[1].strip()]
+            if (len(product.barcode[0]) not in [0,8,12,13]):
+                product.barcode = []
+
+            product.name = raw_data[2].strip()
+            if len(product.name) == 0:
+                product.name = "unavailable"
+            
+            try:
+                product.price = float(raw_data[3])
+                product.price = round(product.price, 2)
+            except ValueError:
+                product.price = 0.0
+
+            try:
+                product.stock = float(raw_data[6])
+                product.stock = round(product.stock, 0)
+            except ValueError:
+                product.stock = 0.0
+
+            product.visible = raw_data[7].strip().lower()
+            if product.visible != "true" and product.visible != "false":
+                product.visible = False
+            else:
+                product.visible = product.visible == "true"
+
+            # Optional attributes
+            try:
+                product.promo_price = float(raw_data[4])
+                product.promo_price = round(product.promo_price, 2)
+            except ValueError:
+                product.promo_price = 0.0
+
+            try:
+                product.promo_end_at = datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
+            except:
+                product.promo_end_at = ""
+
+            self.data.append(product)
+            batch_count += 1
+
+        # If at least one product was loaded, then it must be sent
+        # hence the True
+        if batch_count > 0:
+            return True
+        else:
+        # If not even one was loaded then the file is over and theres nothing
+        # to send, hence the 'False'
             self._file_terminate()
             return False
-         
-        product = Product()
-        product.internal_code = raw_data[0].strip()
-        if len(product.internal_code) == 0:
-            product.name = "unavailable"
-
-        product.barcode = [raw_data[1].strip()]
-        if (len(product.barcode[0]) not in [0,8,12,13]):
-            product.barcode = []
-
-        product.name = raw_data[2].strip()
-        if len(product.name) == 0:
-            product.name = "unavailable"
-            
-        try:
-            product.price = float(raw_data[3])
-            product.price = round(product.price, 2)
-        except ValueError:
-            product.price = 0.0
-
-        try:
-            product.stock = float(raw_data[6])
-            product.stock = round(product.stock, 0)
-        except ValueError:
-            product.stock = 0.0
-
-        product.visible = raw_data[7].strip().lower()
-        if product.visible != "true" and product.visible != "false":
-            product.visible = False
-        else:
-            product.visible = product.visible == "true"
-
-        # Optional attributes
-        try:
-            product.promo_price = float(raw_data[4])
-            product.promo_price = round(product.promo_price, 2)
-        except ValueError:
-            product.promo_price = 0.0
-
-        try:
-            product.promo_end_at = datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
-        except:
-            product.promo_end_at = ""
-
-        self.data.append(product)
-
-        return true
 
     def payload(self, op: str) -> dict:
 
