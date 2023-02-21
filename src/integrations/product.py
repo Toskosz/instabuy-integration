@@ -81,7 +81,7 @@ class ProductIntegration(Integration):
             batch_count += 1
 
         # If at least one product was loaded, then it must be sent
-        # hence the True
+        # hence the 'True'
         if batch_count > 0:
             return True
         else:
