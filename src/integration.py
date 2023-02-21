@@ -1,4 +1,4 @@
-from src.api import
+from src.api import API
 
 class Integration:
 
@@ -12,6 +12,10 @@ class Integration:
         pass
 
     def update(self, file_path="", batch_size=None) -> None:
+        batch_count = 0
         while self.load(file_path, batch_size):
+            batch_count += 1
             response = API.put(endpoint=self.endpoint, payload=self.payload("put"))
-            # TODO: Fazer alguma coisa com resposta, print talvez
+            print("Batch: %s Status: %s HTTPStatus: %s " % (batch_count,response["status"],response["http_status"]))
+            print("Records: %s Updated: %s Registered: %s " % (response["data"]["count"],response["data"]["update"],response["data"]["registered"]))
+
