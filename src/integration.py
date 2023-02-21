@@ -11,7 +11,7 @@ class Integration:
     def payload(self, op: str) -> dict:
         pass
 
-    def update(self, file_path="", batch_size=None) -> None:
+    def update(self, file_path: str, batch_size: int) -> None:
         batch_count = 0
         while self.load(file_path, batch_size):
             batch_count += 1

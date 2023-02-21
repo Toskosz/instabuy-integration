@@ -1,14 +1,10 @@
-
-
+from src.api import API
+from src.integrations import ProductIntegration
 
 def main():
-    API.load_config()
-
-    p_int = ProductIntegration()
-    p_int.update("path", 500)
-    p_int.create("path_create", 200)
-    p_int.delete("path_delete", 300)
-
+    API.setup("instabuy")
+    InstabuyProducts = ProductIntegration()
+    InstabuyProducts.update("./assets/data/items.csv", 1000)
 
 if __name__ == '__main__':
     main()
