@@ -1,12 +1,27 @@
 from src.integration import Integration
 from models.product import Product
+
 import csv
+import datetime
+import locale
 
 class ProductIntegration(Integration):
 
-    def __init__(self):
+    def __init__(self) -> None:
+        locale.setlocale(locale.LC_ALL, "pt_BR.utf8")
         super().__init__("products")
         self.data = []
+        self.file = None
+        self.reader = None
+
+    def _file_init(self, file_path: str) -> None:
+        self.file = open(file_path, 'r')
+        self.reader = csv.reader(self.file, delimiter=';')
+
+    def _file_terminate(self) -> None:
+        self.file.close()
+        self.file = None
+        self.reader = None
 
     def load(self, file_path: str) -> bool:
         if not self.file:
@@ -15,18 +30,18 @@ class ProductIntegration(Integration):
         raw_data = next(self.reader, None)
         if not raw_data:
             self._file_terminate()
-            return false
+            return False
          
         product = Product()
-        product.internal_code = raw_data[0]
+        product.internal_code = raw_data[0].strip()
         if len(product.internal_code) == 0:
             product.name = "unavailable"
 
-        product.barcode = [raw_data[1]]
+        product.barcode = [raw_data[1].strip()]
         if (len(product.barcode[0]) not in [0,8,12,13]):
             product.barcode = []
 
-        product.name = raw_data[2]
+        product.name = raw_data[2].strip()
         if len(product.name) == 0:
             product.name = "unavailable"
             
@@ -42,11 +57,11 @@ class ProductIntegration(Integration):
         except ValueError:
             product.stock = 0.0
 
-        product.visible = raw_data[7]
-        if product.visible != "True" and product.visible != "False":
+        product.visible = raw_data[7].strip().lower()
+        if product.visible != "true" and product.visible != "false":
             product.visible = False
         else:
-            product.visible = product.visible == "True"
+            product.visible = product.visible == "true"
 
         # Optional attributes
         try:
@@ -55,14 +70,23 @@ class ProductIntegration(Integration):
         except ValueError:
             product.promo_price = 0.0
 
-        # tratar se houver
-        product.promo_end_at = raw_data[5]
-        
+        try:
+            product.promo_end_at = datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
+        except:
+            product.promo_end_at = ""
+
         self.data.append(product)
 
         return true
 
     def payload(self, op: str) -> dict:
-        # criacao do payload
-        self.data.clear()
-        pass
+
+        if op == "put":
+            payload = {
+                'products': [product.__dict__ for product in self.data]
+            }
+            self.data.clear()
+            return payload
+        else:
+            return {}
+
