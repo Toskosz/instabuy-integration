@@ -1,11 +1,11 @@
 import requests
 import json
 from configparser import ConfigParser
+from requests.adapters import HTTPAdapter, Retry
 
 class API:
 
     host: str
-    api_key: str
     api_session: requests.Session
 
     @staticmethod
@@ -32,4 +32,4 @@ class API:
         response = self.api_session.put(self.host+endpoint,
                 json.dumps(payload))
 
-        return json.loads(response.content)['data']
+        return json.loads(response.content)
