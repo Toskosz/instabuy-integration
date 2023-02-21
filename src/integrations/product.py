@@ -17,6 +17,7 @@ class ProductIntegration(Integration):
     def _file_init(self, file_path: str) -> None:
         self.file = open(file_path, 'r')
         self.reader = csv.reader(self.file, delimiter=';')
+        next(self.reader, None)
 
     def _file_terminate(self) -> None:
         self.file.close()
@@ -40,7 +41,7 @@ class ProductIntegration(Integration):
                 product.name = "unavailable"
 
             product.barcode = [raw_data[1].strip()]
-            if (len(product.barcode[0]) not in [0,8,12,13]):
+            if (len(product.barcode[0]) not in [8,12,13]):
                 product.barcode = []
 
             product.name = raw_data[2].strip()
@@ -48,13 +49,13 @@ class ProductIntegration(Integration):
                 product.name = "unavailable"
             
             try:
-                product.price = float(raw_data[3])
+                product.price = float(raw_data[3].replace(",", "."))
                 product.price = round(product.price, 2)
             except ValueError:
                 product.price = 0.0
 
             try:
-                product.stock = float(raw_data[6])
+                product.stock = float(raw_data[6].replace(",", "."))
                 product.stock = round(product.stock, 0)
             except ValueError:
                 product.stock = 0.0
@@ -67,13 +68,13 @@ class ProductIntegration(Integration):
 
             # Optional attributes
             try:
-                product.promo_price = float(raw_data[4])
+                product.promo_price = float(raw_data[4].replace(",", "."))
                 product.promo_price = round(product.promo_price, 2)
             except ValueError:
                 product.promo_price = 0.0
 
             try:
-                product.promo_end_at = datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
+                product.promo_end_at = datetime.datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
             except:
                 product.promo_end_at = ""
 
