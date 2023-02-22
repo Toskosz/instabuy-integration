@@ -7,7 +7,12 @@ import locale
 
 class ProductIntegration(Integration):
 
+    """
+    Product specific integration, handles data ingestions and payload formatting
+    """
+
     def __init__(self) -> None:
+        # Config to deal with portuguese product dates (e.g. "Dez")
         locale.setlocale(locale.LC_ALL, "pt_BR.utf8")
         super().__init__("products")
         self.data = []
@@ -15,16 +20,40 @@ class ProductIntegration(Integration):
         self.reader = None
 
     def _file_init(self, file_path: str) -> None:
+        """ Open file in file_path and sets new csv reader
+
+        Args:
+            file_path (str): relative path to desired file
+        Raises:
+            FileNotFoundError: in case file is not found at file_path
+
+        """
         self.file = open(file_path, 'r')
         self.reader = csv.reader(self.file, delimiter=';')
         next(self.reader, None)
 
     def _file_terminate(self) -> None:
+        """ Closes file
+            
+        Closes file and set both file and reader attributes to 'None'
+
+        """
         self.file.close()
         self.file = None
         self.reader = None
 
     def load(self, file_path: str, batch_size: int) -> bool:
+        """ Loads batch of Product data
+        
+        Args:
+            file_path (str): relative path to file/data source
+            batch_size (int): Number os products to load
+        Returns:
+            bool signaling that data was loaded
+
+        """
+
+        # Verify if file from last load is stil open
         if not self.file:
             self._file_init(file_path)
         
@@ -32,10 +61,12 @@ class ProductIntegration(Integration):
         while batch_count < batch_size:
         
             raw_data = next(self.reader, None)
+            # Checks if EOF 
             if not raw_data:
                 break
  
             product = Product()
+
             product.internal_code = raw_data[0].strip()
             if len(product.internal_code) == 0:
                 product.name = "unavailable"
@@ -49,6 +80,7 @@ class ProductIntegration(Integration):
                 product.name = "unavailable"
             
             try:
+                # Numeric numbers come with ','
                 product.price = float(raw_data[3].replace(",", "."))
                 product.price = round(product.price, 2)
             except ValueError:
@@ -74,7 +106,8 @@ class ProductIntegration(Integration):
                 product.promo_price = 0.0
 
             try:
-                product.promo_end_at = datetime.datetime.strptime(raw_data[5].title(), "%d-%b-%y").isoformat()
+                product.promo_end_at = datetime.datetime.strptime(
+                        raw_data[5].title(), "%d-%b-%y").isoformat()
             except:
                 product.promo_end_at = ""
 
@@ -92,6 +125,15 @@ class ProductIntegration(Integration):
             return False
 
     def payload(self, op: str) -> dict:
+        """ Creates payload from class data for desired operation
+
+        Args:
+            op (str): Desired operation, probably the same as REST but not 
+            limited to it
+        Returns:
+            A dict representing the payload for that operation
+
+        """
 
         if op == "put":
             payload = {
