@@ -2,34 +2,40 @@ import requests
 import json
 from configparser import ConfigParser
 from requests.adapters import HTTPAdapter, Retry
+from contextlib import contextmanager
 
 class API:
 
     host: str
-    api_session: requests.Session
 
-    @staticmethod
-    def setup(self, api_id: str) -> None:
+    @contextmanager
+    def conn(api_id: str) -> None:
         config = ConfigParser()
         config.read("./assets/config/api.cfg")
 
-        self.host = config.get(api_id, "host")
+        API.host = config.get(api_id, "host")
 
-        self.api_session = requests.Session()
-        self.api_session.headers.update({
-            "api_key": config.get(api_id, "api_key"),
+        API.api_session = requests.Session()
+        API.api_session.headers.update({
+            "api-key": config.get(api_id, "api_key"),
             "Content-Type": "application/json"
         })
         
         # Retry mechanism
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[500])
-        self.api_session.mount('http://', HTTPAdapter(max_retries=retries))
-        self.api_session.mount('https://', HTTPAdapter(max_retries=retries))
+        API.api_session.mount('http://', HTTPAdapter(max_retries=retries))
+        API.api_session.mount('https://', HTTPAdapter(max_retries=retries))
+
+        try:
+            yield
+        finally:
+            API.api_session.close()
 
     @staticmethod
     def put(endpoint:str, payload: dict) -> dict:
         
-        response = self.api_session.put(self.host+endpoint,
+        response = API.api_session.put(API.host+endpoint,
                 json.dumps(payload))
-
+        
         return json.loads(response.content)
+
