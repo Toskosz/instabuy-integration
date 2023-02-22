@@ -6,10 +6,24 @@ from contextlib import contextmanager
 
 class API:
 
+    """
+
+    API Class to manage configurations and requests
+
+    """
+
     host: str
 
     @contextmanager
     def conn(api_id: str) -> None:
+        """ Manages API connection
+
+        Creates and manages the API connection through a Session objects
+
+        Args:
+            api_id (str): id used to get the API configurations in config file
+            
+        """
         config = ConfigParser()
         config.read("./assets/config/api.cfg")
 
@@ -33,9 +47,22 @@ class API:
 
     @staticmethod
     def put(endpoint:str, payload: dict) -> dict:
+        """ Makes put request to API
+
+        Args:
+            endpoint (str): Desired API endpoint
+            payload (dict): Payload of the request
+        Returns:
+            A dict containing the response contents of the request
+
+        """
         
-        response = API.api_session.put(API.host+endpoint,
-                json.dumps(payload))
+        try:
+            response = API.api_session.put(API.host+endpoint,
+                    json.dumps(payload))
+        except Exception as e:
+            print(e)
+
         
         return json.loads(response.content)
 
