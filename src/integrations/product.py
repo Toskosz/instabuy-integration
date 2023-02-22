@@ -125,7 +125,7 @@ class ProductIntegration(Integration):
             return False
 
     def payload(self, op: str) -> dict:
-        """ Creates payload from class data for desired operation
+        """ Format payload from self.data for desired operation
 
         Args:
             op (str): Desired operation, probably the same as REST but not 
