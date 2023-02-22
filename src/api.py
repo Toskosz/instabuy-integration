@@ -30,10 +30,10 @@ class API:
         API.host = config.get(api_id, "host")
 
         API.api_session = requests.Session()
-        API.api_session.headers.update({
+        API.api_session.headers = {
             "api-key": config.get(api_id, "api_key"),
             "Content-Type": "application/json"
-        })
+        }
         
         # Retry mechanism
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[500])
