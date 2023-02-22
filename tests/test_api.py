@@ -6,11 +6,11 @@ class TestAPI(unittest.TestCase):
 
     def test_setup(self):
         desired_headers = {
-                "api-key": "123",
+                "api-key": "kUs5p-K-sIOMT_hfg2FOYFie7iqRD2pn47jfvPQElLQ",
                 "Content-Type": "application/json"
         }
-        with API.conn("test"):
-            self.assertEqual(API.host, "https://httpbin.org/")
+        with API.conn("instabuy"):
+            self.assertEqual(API.host, "https://api.instabuy.com.br/store/")
             self.assertEqual(API.api_session.headers["api-key"], desired_headers["api-key"])
             self.assertEqual(API.api_session.headers["Content-Type"], desired_headers["Content-Type"])
 
