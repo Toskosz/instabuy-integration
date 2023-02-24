@@ -49,6 +49,12 @@ class Integration:
         with API.conn("instabuy"):
             while self.load(file_path, batch_size):
                 batch_count += 1
+                
+                #print(API.host)
+                #print(self.endpoint)
+                #print(API.api_session.headers)
+                #print(self.payload("put"))
+
                 response = API.put(endpoint=self.endpoint,
                         payload=self.payload("put"))
                 
@@ -56,8 +62,11 @@ class Integration:
                     batch_count,
                     response["status"],
                     response["http_status"]))
-                print("Records: %s Updated: %s Registered: %s " % (
+                if response["http_status"] >= 200 and response["http_status"] < 300:
+                    print("Records: %s Updated: %s Registered: %s " % (
                         response["data"]["count"],
-                        response["data"]["update"],
+                        response["data"]["updated"],
                         response["data"]["registered"]))
+                else:
+                    return
 

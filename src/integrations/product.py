@@ -68,16 +68,16 @@ class ProductIntegration(Integration):
             product = Product()
 
             product.internal_code = raw_data[0].strip()
-            if len(product.internal_code) == 0:
-                product.name = "unavailable"
+            #if len(product.internal_code) == 0:
+            #    product.name = "unavailable"
 
             product.barcode = [raw_data[1].strip()]
             if (len(product.barcode[0]) not in [8,12,13]):
                 product.barcode = []
 
             product.name = raw_data[2].strip()
-            if len(product.name) == 0:
-                product.name = "unavailable"
+            #if len(product.name) == 0:
+            #    product.name = "unavailable"
             
             try:
                 # Numeric numbers come with ','
