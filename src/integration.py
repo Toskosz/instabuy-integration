@@ -35,7 +35,7 @@ class Integration:
         """
         pass
 
-    def update(self, api: str, file_path: str, batch_size: int) -> None:
+    def update(self, api: str, source: str, batch_size: int) -> None:
         """ Updates data in batches.
 
         Args:
