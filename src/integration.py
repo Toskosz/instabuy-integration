@@ -47,11 +47,11 @@ class Integration:
 
         """
         batch_count = 0
-        with API.conn(api):
+        with API(api) as api_conn:
             while self.load(source, batch_size):
                 batch_count += 1
 
-                response = API.put(endpoint=self.endpoint,
+                response = api_conn.put(endpoint=self.endpoint,
                         payload=self.payload("put"))
                 
                 print("Batch: %s Status: %s HTTPStatus: %s " % (

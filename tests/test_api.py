@@ -9,18 +9,19 @@ class TestAPI(unittest.TestCase):
                 "api-key": "123",
                 "Content-Type": "application/json"
         }
-        with API.conn("test"):
-            self.assertEqual(API.host, "https://httpbin.org/")
-            self.assertEqual(API.api_session.headers["api-key"], desired_headers["api-key"])
-            self.assertEqual(API.api_session.headers["Content-Type"], desired_headers["Content-Type"])
+
+        with API("test") as api_conn:
+            self.assertEqual(api_conn.host, "https://httpbin.org/")
+            self.assertEqual(api_conn.api_session.headers["api-key"], desired_headers["api-key"])
+            self.assertEqual(api_conn.api_session.headers["Content-Type"], desired_headers["Content-Type"])
 
     def test_put(self):
         data = {
             "key": "value",
         }
 
-        with API.conn("test"):
-            response = API.put("put", data)
+        with API("test") as api_conn:
+            response = api_conn.put("put", data)
             self.assertEqual(response["url"], "https://httpbin.org/put")
 
 if __name__ == '__main__':

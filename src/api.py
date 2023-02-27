@@ -2,7 +2,6 @@ import requests
 import json
 from configparser import ConfigParser
 from requests.adapters import HTTPAdapter, Retry
-from contextlib import contextmanager
 
 class API:
 
@@ -12,42 +11,54 @@ class API:
 
     """
 
-    host: str
-    api_session: requests.Session
+    def __init__(self, api_id: str) -> None:
+        """ Creates API Session
 
-    @contextmanager
-    def conn(api_id: str) -> None:
-        """ Manages API connection
-
-        Creates and manages the API connection through a Session objects
+        Creates API connection through a Session objects
 
         Args:
             api_id (str): id used to get the API configurations in config file
-            
         """
         config = ConfigParser()
         config.read("./assets/config/api.cfg")
 
-        API.host = config.get(api_id, "host")
+        self.host = config.get(api_id, "host")
 
-        API.api_session = requests.Session()
-        API.api_session.headers = {
+        self.api_session = requests.Session()
+        self.api_session.headers = {
             "api-key": config.get(api_id, "api_key"),
             "Content-Type": "application/json"
         }
         
         # Retry mechanism
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[500])
-        API.api_session.mount('http://', HTTPAdapter(max_retries=retries))
-        API.api_session.mount('https://', HTTPAdapter(max_retries=retries))
+        self.api_session.mount('http://', HTTPAdapter(max_retries=retries))
+        self.api_session.mount('https://', HTTPAdapter(max_retries=retries))
 
-        try:
-            yield
-        finally:
-            API.api_session.close()
+    def __enter__(self) -> requests.Session:
+        """ Manages API connection
 
-    @staticmethod
-    def put(endpoint:str, payload: dict) -> dict:
+        Manages the API connection Session object
+
+        """
+        return self
+
+    def __exit__(self, exception_type, exception_value, exception_traceback) -> None:
+        """ Closes API connection
+
+        Closes Session objection when API connection is finished
+        
+        Args:
+            exception_type: indicates class of exception.
+            exception_value: ndicates type of exception. like divide_by_zero 
+            error, floating_point_error, which are types of arithmetic exception.
+            exception_tracebacka: traceback is a report which has all of the
+            information needed to solve the exception.
+
+        """
+        self.api_session.close()
+
+    def put(self, endpoint:str, payload: dict) -> dict:
         """ Makes put request to API
 
         Args:
@@ -58,7 +69,7 @@ class API:
 
         """
         
-        response = API.api_session.put(API.host+endpoint,
+        response = self.api_session.put(self.host+endpoint,
                 json.dumps(payload))
         
         return json.loads(response.content)
