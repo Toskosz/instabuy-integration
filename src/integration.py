@@ -39,7 +39,8 @@ class Integration:
         """ Updates data in batches.
 
         Args:
-            file_path (str): Data source
+            api (str): Desired api to update. API ID in config file.
+            source (str): Data source
             batch_size (int): Size of batches
         Raises:
             KeyError if response doesn't contain some key used in printing
@@ -47,7 +48,7 @@ class Integration:
         """
         batch_count = 0
         with API.conn(api):
-            while self.load(file_path, batch_size):
+            while self.load(source, batch_size):
                 batch_count += 1
 
                 response = API.put(endpoint=self.endpoint,
