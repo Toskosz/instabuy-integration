@@ -14,14 +14,17 @@ Final result:
 ## How to
 
 Clone the repo:
+
 `git clone https://github.com/Toskosz/instabuy-integration.git`
 
 In the repo directory,
 
 install required libs:
+
 `pip install -r ./requirements.txt`
 
 then run the update integration:
+
 `python3.7 main.py`
 
 ## Tests
