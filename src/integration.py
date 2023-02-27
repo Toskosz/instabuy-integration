@@ -35,7 +35,7 @@ class Integration:
         """
         pass
 
-    def update(self, file_path: str, batch_size: int) -> None:
+    def update(self, api: str, file_path: str, batch_size: int) -> None:
         """ Updates data in batches.
 
         Args:
@@ -46,14 +46,9 @@ class Integration:
 
         """
         batch_count = 0
-        with API.conn("instabuy"):
+        with API.conn(api):
             while self.load(file_path, batch_size):
                 batch_count += 1
-                
-                #print(API.host)
-                #print(self.endpoint)
-                #print(API.api_session.headers)
-                #print(self.payload("put"))
 
                 response = API.put(endpoint=self.endpoint,
                         payload=self.payload("put"))

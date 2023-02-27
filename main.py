@@ -3,7 +3,7 @@ from src.integrations.product import ProductIntegration
 
 def main():
     InstabuyProducts = ProductIntegration()
-    InstabuyProducts.update("./assets/data/items.csv", 1000)
+    InstabuyProducts.update(api="instabuy", source="./assets/data/items.csv", batch_size=1000)
 
 if __name__ == '__main__':
     main()

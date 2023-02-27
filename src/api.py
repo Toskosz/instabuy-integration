@@ -13,6 +13,7 @@ class API:
     """
 
     host: str
+    api_session: requests.Session
 
     @contextmanager
     def conn(api_id: str) -> None:
@@ -57,12 +58,8 @@ class API:
 
         """
         
-        try:
-            response = API.api_session.put(API.host+endpoint,
-                    json.dumps(payload))
-        except Exception as e:
-            print(e)
-
+        response = API.api_session.put(API.host+endpoint,
+                json.dumps(payload))
         
         return json.loads(response.content)
 
